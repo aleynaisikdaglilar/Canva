@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		74D7D6D22C8F12B200B7B5FA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D7D6D12C8F12B200B7B5FA /* AppDelegate.swift */; };
 		74D7D6D42C8F12B200B7B5FA /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D7D6D32C8F12B200B7B5FA /* SceneDelegate.swift */; };
-		74D7D6D62C8F12B200B7B5FA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D7D6D52C8F12B200B7B5FA /* ViewController.swift */; };
+		74D7D6D62C8F12B200B7B5FA /* CanvasViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D7D6D52C8F12B200B7B5FA /* CanvasViewController.swift */; };
 		74D7D6DB2C8F12B400B7B5FA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 74D7D6DA2C8F12B400B7B5FA /* Assets.xcassets */; };
 		74D7D6DE2C8F12B400B7B5FA /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 74D7D6DD2C8F12B400B7B5FA /* Base */; };
 		74D7D6EB2C8F18CD00B7B5FA /* PexelsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D7D6EA2C8F18CD00B7B5FA /* PexelsResponse.swift */; };
@@ -24,7 +24,7 @@
 		74D7D6CE2C8F12B200B7B5FA /* Canva.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Canva.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		74D7D6D12C8F12B200B7B5FA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		74D7D6D32C8F12B200B7B5FA /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		74D7D6D52C8F12B200B7B5FA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		74D7D6D52C8F12B200B7B5FA /* CanvasViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasViewController.swift; sourceTree = "<group>"; };
 		74D7D6DA2C8F12B400B7B5FA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		74D7D6DD2C8F12B400B7B5FA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		74D7D6DF2C8F12B400B7B5FA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -66,11 +66,11 @@
 		74D7D6D02C8F12B200B7B5FA /* Canva */ = {
 			isa = PBXGroup;
 			children = (
+				74D7D7052C8F8F4500B7B5FA /* Controllers */,
 				74D7D6EC2C8F19D900B7B5FA /* Service */,
-				74D7D6E92C8F18BB00B7B5FA /* Model */,
+				74D7D6E92C8F18BB00B7B5FA /* Models */,
 				74D7D6E82C8F189200B7B5FA /* ViewModel */,
 				74D7D6E52C8F150400B7B5FA /* Resources */,
-				74D7D6D52C8F12B200B7B5FA /* ViewController.swift */,
 				74D7D6DF2C8F12B400B7B5FA /* Info.plist */,
 			);
 			path = Canva;
@@ -95,14 +95,14 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		74D7D6E92C8F18BB00B7B5FA /* Model */ = {
+		74D7D6E92C8F18BB00B7B5FA /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				74D7D6EA2C8F18CD00B7B5FA /* PexelsResponse.swift */,
 				74D7D6F52C8F297500B7B5FA /* Photo.swift */,
 				74D7D6F72C8F298B00B7B5FA /* ImageSource.swift */,
 			);
-			path = Model;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		74D7D6EC2C8F19D900B7B5FA /* Service */ = {
@@ -112,6 +112,22 @@
 				74D7D6F32C8F27B900B7B5FA /* Error.swift */,
 			);
 			path = Service;
+			sourceTree = "<group>";
+		};
+		74D7D7052C8F8F4500B7B5FA /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				74D7D7062C8F8F5000B7B5FA /* Core */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		74D7D7062C8F8F5000B7B5FA /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				74D7D6D52C8F12B200B7B5FA /* CanvasViewController.swift */,
+			);
+			path = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -186,7 +202,7 @@
 			files = (
 				74D7D6F62C8F297500B7B5FA /* Photo.swift in Sources */,
 				74D7D6F02C8F1A6400B7B5FA /* PexelsViewModel.swift in Sources */,
-				74D7D6D62C8F12B200B7B5FA /* ViewController.swift in Sources */,
+				74D7D6D62C8F12B200B7B5FA /* CanvasViewController.swift in Sources */,
 				74D7D6D22C8F12B200B7B5FA /* AppDelegate.swift in Sources */,
 				74D7D6F82C8F298B00B7B5FA /* ImageSource.swift in Sources */,
 				74D7D6D42C8F12B200B7B5FA /* SceneDelegate.swift in Sources */,
