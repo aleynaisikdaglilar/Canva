@@ -42,10 +42,6 @@ final class PexelsService {
                 return
             }
             
-            if let rawString = String(data: data, encoding: .utf8) {
-                print("Raw Response Data: \(rawString)")
-            }
-            
             do {
                 let response = try JSONDecoder().decode(PexelsResponse.self, from: data)
                 completion(.success(response))

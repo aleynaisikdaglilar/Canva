@@ -29,8 +29,16 @@ final class CanvasViewController: UIViewController {
         addButton.setTitleColor(.white, for: .normal)
         addButton.layer.cornerRadius = 25
         addButton.translatesAutoresizingMaskIntoConstraints = false
+        addButton.addTarget(self, action: #selector(showImagePicker), for: .touchUpInside)
         return addButton
     }()
+    
+    @objc private func showImagePicker() {
+        let imagePickerVC = ImagePickerViewController()
+        imagePickerVC.delegate = self
+        present(imagePickerVC, animated: true, completion: nil)
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,5 +83,21 @@ final class CanvasViewController: UIViewController {
                 line.widthAnchor.constraint(equalToConstant: lineWidth)
             ])
         }
+    }
+}
+
+extension CanvasViewController: ImagePickerDelegate {
+    func didSelectImage(_ image: UIImage) {
+        let imageView = UIImageView(image: image)
+        imageView.isUserInteractionEnabled = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        canvasView.addSubview(imageView)
+    
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 120),
+            imageView.heightAnchor.constraint(equalToConstant: 120),
+            imageView.centerXAnchor.constraint(equalTo: canvasView.centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: canvasView.centerYAnchor)
+        ])
     }
 }
