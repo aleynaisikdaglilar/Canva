@@ -16,6 +16,8 @@ final class CanvasViewController: UIViewController {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.alwaysBounceVertical = true
+        scrollView.alwaysBounceHorizontal = true
         return scrollView
     }()
     
@@ -55,6 +57,7 @@ final class CanvasViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(canvasView)
         view.addSubview(addButton)
+        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -65,8 +68,9 @@ final class CanvasViewController: UIViewController {
             canvasView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             canvasView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             canvasView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            canvasView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            canvasView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
+            
+            canvasView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 1.2), // Scaled width
+            canvasView.heightAnchor.constraint(equalTo: scrollView.heightAnchor, multiplier: 1.2), // Scaled height
             
             addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             addButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -76,6 +80,7 @@ final class CanvasViewController: UIViewController {
         
         let lineWidth: CGFloat = 1.0
         let numberOfLines = 2
+        let scaledCanvasWidth = view.frame.width * 1.2 // Calculate scaled width
         
         for i in 1...numberOfLines {
             let line = UIView()
@@ -85,11 +90,12 @@ final class CanvasViewController: UIViewController {
             NSLayoutConstraint.activate([
                 line.topAnchor.constraint(equalTo: canvasView.topAnchor),
                 line.bottomAnchor.constraint(equalTo: canvasView.bottomAnchor),
-                line.leadingAnchor.constraint(equalTo: canvasView.leadingAnchor, constant: view.frame.width / 3 * CGFloat(i)),
+                line.leadingAnchor.constraint(equalTo: canvasView.leadingAnchor, constant: scaledCanvasWidth / 3 * CGFloat(i)),
                 line.widthAnchor.constraint(equalToConstant: lineWidth)
             ])
         }
     }
+    
     
     @objc private func handleCanvasTap() {
         removeOverlay()
@@ -144,6 +150,7 @@ final class CanvasViewController: UIViewController {
         
         let padding: CGFloat = 5.0
         
+        
         overlayView = UIView(frame: imageView.frame.insetBy(dx: -padding, dy: -padding))
         overlayView?.backgroundColor = UIColor.cyan.withAlphaComponent(0.3)
         overlayView?.isUserInteractionEnabled = false
@@ -156,6 +163,7 @@ final class CanvasViewController: UIViewController {
     private func updateOverlayFrame(for imageView: UIImageView) {
         
         let padding: CGFloat = 5.0
+        
         overlayView?.frame = imageView.frame.insetBy(dx: -padding, dy: -padding)
     }
 }
