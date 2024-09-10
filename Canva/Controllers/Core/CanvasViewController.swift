@@ -9,6 +9,9 @@ import UIKit
 
 final class CanvasViewController: UIViewController {
     
+    private var selectedImageView: UIImageView?
+    private var imageViewFrames: [UIImageView: CGRect] = [:]
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -39,10 +42,12 @@ final class CanvasViewController: UIViewController {
         present(imagePickerVC, animated: true, completion: nil)
     }
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         addConstraints()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleCanvasTap))
+        canvasView.addGestureRecognizer(tapGesture)
     }
     
     private func addConstraints() {
@@ -67,7 +72,7 @@ final class CanvasViewController: UIViewController {
             addButton.widthAnchor.constraint(equalToConstant: 50),
             addButton.heightAnchor.constraint(equalToConstant: 50),
         ])
-    
+        
         let lineWidth: CGFloat = 1.0
         let numberOfLines = 2
         
@@ -84,20 +89,60 @@ final class CanvasViewController: UIViewController {
             ])
         }
     }
+    
+    @objc private func handleCanvasTap() {
+        removeOverlay()
+        selectedImageView = nil
+    }
+    
+    private func removeOverlay() {
+        // overlayView?.removeFromSuperview()
+        // overlayView = nil
+    }
+    
+    private func makeImageViewMovable(_ imageView: UIImageView) {
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        imageView.addGestureRecognizer(panGesture)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleImageTap(_:)))
+        imageView.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        guard let imageView = gesture.view as? UIImageView else { return }
+        
+        let translation = gesture.translation(in: canvasView)
+        imageView.frame = imageView.frame.offsetBy(dx: translation.x, dy: translation.y)
+        gesture.setTranslation(.zero, in: canvasView)
+        
+        if gesture.state == .changed || gesture.state == .ended {
+            imageViewFrames[imageView] = imageView.frame
+        }
+    }
+    
+    @objc private func handleImageTap(_ gesture: UITapGestureRecognizer) {
+        guard let imageView = gesture.view as? UIImageView else { return }
+        
+        if selectedImageView != imageView {
+            selectedImageView = imageView
+        }
+    }
 }
 
 extension CanvasViewController: ImagePickerDelegate {
     func didSelectImage(_ image: UIImage) {
         let imageView = UIImageView(image: image)
         imageView.isUserInteractionEnabled = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         canvasView.addSubview(imageView)
-    
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: 120),
-            imageView.heightAnchor.constraint(equalToConstant: 120),
-            imageView.centerXAnchor.constraint(equalTo: canvasView.centerXAnchor),
-            imageView.centerYAnchor.constraint(equalTo: canvasView.centerYAnchor)
-        ])
+        
+        makeImageViewMovable(imageView)
+        
+        let initialFrame = CGRect(x: (canvasView.bounds.width - 100) / 2,
+                                  y: (canvasView.bounds.height - 100) / 2,
+                                  width: 100,
+                                  height: 100)
+        
+        imageView.frame = initialFrame
+        imageViewFrames[imageView] = initialFrame
     }
 }

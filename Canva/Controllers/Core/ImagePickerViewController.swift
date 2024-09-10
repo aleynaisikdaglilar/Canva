@@ -11,7 +11,7 @@ protocol ImagePickerDelegate: AnyObject {
     func didSelectImage(_ image: UIImage)
 }
 
-class ImagePickerViewController: UIViewController {
+final class ImagePickerViewController: UIViewController {
     
     weak var delegate: ImagePickerDelegate?
     private let viewModel = PexelsViewModel()
