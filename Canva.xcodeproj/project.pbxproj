@@ -53,6 +53,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		747F89B12C904147003E89CD /* View */ = {
+			isa = PBXGroup;
+			children = (
+				747F89B22C90414E003E89CD /* CollectionViewCell */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		747F89B22C90414E003E89CD /* CollectionViewCell */ = {
+			isa = PBXGroup;
+			children = (
+				74D7D7092C8F9E2700B7B5FA /* ImagePickerCollectionViewCell.swift */,
+			);
+			path = CollectionViewCell;
+			sourceTree = "<group>";
+		};
 		74D7D6C52C8F12B200B7B5FA = {
 			isa = PBXGroup;
 			children = (
@@ -72,13 +88,13 @@
 		74D7D6D02C8F12B200B7B5FA /* Canva */ = {
 			isa = PBXGroup;
 			children = (
+				747F89B12C904147003E89CD /* View */,
 				74D7D7052C8F8F4500B7B5FA /* Controllers */,
 				74D7D6EC2C8F19D900B7B5FA /* Service */,
 				74D7D6E92C8F18BB00B7B5FA /* Models */,
 				74D7D6E82C8F189200B7B5FA /* ViewModel */,
 				74D7D6E52C8F150400B7B5FA /* Resources */,
 				74D7D6DF2C8F12B400B7B5FA /* Info.plist */,
-				74D7D7092C8F9E2700B7B5FA /* ImagePickerCollectionViewCell.swift */,
 			);
 			path = Canva;
 			sourceTree = "<group>";

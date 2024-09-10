@@ -11,6 +11,7 @@ final class CanvasViewController: UIViewController {
     
     private var selectedImageView: UIImageView?
     private var imageViewFrames: [UIImageView: CGRect] = [:]
+    private var overlayView: UIView?
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -96,8 +97,8 @@ final class CanvasViewController: UIViewController {
     }
     
     private func removeOverlay() {
-        // overlayView?.removeFromSuperview()
-        // overlayView = nil
+        overlayView?.removeFromSuperview()
+        overlayView = nil
     }
     
     private func makeImageViewMovable(_ imageView: UIImageView) {
@@ -111,12 +112,21 @@ final class CanvasViewController: UIViewController {
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
         guard let imageView = gesture.view as? UIImageView else { return }
         
+        if gesture.state == .began {
+            selectedImageView = imageView
+            addOverlay(to: imageView)
+        }
+        
         let translation = gesture.translation(in: canvasView)
         imageView.frame = imageView.frame.offsetBy(dx: translation.x, dy: translation.y)
         gesture.setTranslation(.zero, in: canvasView)
         
         if gesture.state == .changed || gesture.state == .ended {
             imageViewFrames[imageView] = imageView.frame
+            
+            if selectedImageView == imageView {
+                updateOverlayFrame(for: imageView)
+            }
         }
     }
     
@@ -125,7 +135,28 @@ final class CanvasViewController: UIViewController {
         
         if selectedImageView != imageView {
             selectedImageView = imageView
+            addOverlay(to: imageView)
         }
+    }
+    
+    private func addOverlay(to imageView: UIImageView) {
+        removeOverlay()
+        
+        let padding: CGFloat = 5.0
+        
+        overlayView = UIView(frame: imageView.frame.insetBy(dx: -padding, dy: -padding))
+        overlayView?.backgroundColor = UIColor.cyan.withAlphaComponent(0.3)
+        overlayView?.isUserInteractionEnabled = false
+        
+        if let overlay = overlayView {
+            canvasView.insertSubview(overlay, aboveSubview: imageView)
+        }
+    }
+    
+    private func updateOverlayFrame(for imageView: UIImageView) {
+        
+        let padding: CGFloat = 5.0
+        overlayView?.frame = imageView.frame.insetBy(dx: -padding, dy: -padding)
     }
 }
 
@@ -144,5 +175,8 @@ extension CanvasViewController: ImagePickerDelegate {
         
         imageView.frame = initialFrame
         imageViewFrames[imageView] = initialFrame
+        
+        selectedImageView = imageView
+        addOverlay(to: imageView)
     }
 }
