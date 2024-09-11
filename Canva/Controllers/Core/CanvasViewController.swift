@@ -14,6 +14,9 @@ final class CanvasViewController: UIViewController {
     private var overlayView: UIView?
     private var lines: [UIView] = []
     
+    private var horizontalCenterLine: UIView?
+    private var verticalCenterLine: UIView?
+    
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -79,6 +82,10 @@ final class CanvasViewController: UIViewController {
             addButton.heightAnchor.constraint(equalToConstant: 50),
         ])
         
+        addFixedLines()
+    }
+    
+    private func addFixedLines() {
         let lineWidth: CGFloat = 1.0
         let numberOfLines = 2
         let scaledCanvasWidth = view.frame.width * 1.2
@@ -98,10 +105,10 @@ final class CanvasViewController: UIViewController {
         }
     }
     
-    
     @objc private func handleCanvasTap() {
         removeOverlay()
         selectedImageView = nil
+        hideCenterLines()
     }
     
     private func removeOverlay() {
@@ -136,6 +143,7 @@ final class CanvasViewController: UIViewController {
                 updateOverlayFrame(for: imageView)
             }
             checkIntersection(for: imageView)
+            checkImageViewCenter(for: imageView)
         }
     }
     
@@ -177,6 +185,70 @@ final class CanvasViewController: UIViewController {
                 line.backgroundColor = .gray
             }
         }
+    }
+    
+    private func checkImageViewCenter(for imageView: UIImageView) {
+        let imageViewCenter = imageView.center
+        let canvasViewCenter = CGPoint(x: canvasView.bounds.midX, y: canvasView.bounds.midY)
+        
+        if abs(imageViewCenter.y - canvasViewCenter.y) <= 1.0 {
+            showHorizontalCenterLine()
+        } else {
+            hideHorizontalCenterLine()
+        }
+        
+        if abs(imageViewCenter.x - canvasViewCenter.x) <= 1.0 {
+            showVerticalCenterLine()
+        } else {
+            hideVerticalCenterLine()
+        }
+    }
+    
+    private func showHorizontalCenterLine() {
+        if horizontalCenterLine == nil {
+            let line = UIView()
+            line.backgroundColor = .yellow
+            canvasView.addSubview(line)
+            line.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                line.centerYAnchor.constraint(equalTo: canvasView.centerYAnchor),
+                line.leadingAnchor.constraint(equalTo: canvasView.leadingAnchor),
+                line.trailingAnchor.constraint(equalTo: canvasView.trailingAnchor),
+                line.heightAnchor.constraint(equalToConstant: 1.0)
+            ])
+            horizontalCenterLine = line
+        }
+        horizontalCenterLine?.isHidden = false
+    }
+    
+    private func hideHorizontalCenterLine() {
+        horizontalCenterLine?.isHidden = true
+    }
+    
+    private func showVerticalCenterLine() {
+        if verticalCenterLine == nil {
+            let line = UIView()
+            line.backgroundColor = .yellow
+            canvasView.addSubview(line)
+            line.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                line.centerXAnchor.constraint(equalTo: canvasView.centerXAnchor),
+                line.topAnchor.constraint(equalTo: canvasView.topAnchor),
+                line.bottomAnchor.constraint(equalTo: canvasView.bottomAnchor),
+                line.widthAnchor.constraint(equalToConstant: 1.0)
+            ])
+            verticalCenterLine = line
+        }
+        verticalCenterLine?.isHidden = false
+    }
+    
+    private func hideVerticalCenterLine() {
+        verticalCenterLine?.isHidden = true
+    }
+    
+    private func hideCenterLines() {
+        hideHorizontalCenterLine()
+        hideVerticalCenterLine()
     }
 }
 
