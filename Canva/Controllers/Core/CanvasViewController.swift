@@ -13,6 +13,9 @@ final class CanvasViewController: UIViewController {
     private var imageViewFrames: [UIImageView: CGRect] = [:]
     private var overlayView: UIView?
     private var lines: [UIView] = []
+    var imageViews: [UIImageView] = []
+    var guideLines: [CAShapeLayer] = []
+    let snapThreshold: CGFloat = 5.0
     
     private var horizontalCenterLine: UIView?
     private var verticalCenterLine: UIView?
@@ -136,14 +139,23 @@ final class CanvasViewController: UIViewController {
         imageView.frame = imageView.frame.offsetBy(dx: translation.x, dy: translation.y)
         gesture.setTranslation(.zero, in: canvasView)
         
+        let draggedView = imageView
+        let newTranslation = gesture.translation(in: self.view)
+        draggedView.center = CGPoint(x: draggedView.center.x + newTranslation.x, y: draggedView.center.y + newTranslation.y)
+        gesture.setTranslation(.zero, in: self.view)
+        
         if gesture.state == .changed || gesture.state == .ended {
             imageViewFrames[imageView] = imageView.frame
             
             if selectedImageView == imageView {
                 updateOverlayFrame(for: imageView)
             }
+            
             checkIntersection(for: imageView)
             checkImageViewCenter(for: imageView)
+            
+            updateGuideLines(for: draggedView)
+            snapToGuideLines(draggedView)
         }
     }
     
@@ -214,7 +226,7 @@ final class CanvasViewController: UIViewController {
                 line.centerYAnchor.constraint(equalTo: canvasView.centerYAnchor),
                 line.leadingAnchor.constraint(equalTo: canvasView.leadingAnchor),
                 line.trailingAnchor.constraint(equalTo: canvasView.trailingAnchor),
-                line.heightAnchor.constraint(equalToConstant: 1.0)
+                line.heightAnchor.constraint(equalToConstant: 2.0)
             ])
             horizontalCenterLine = line
         }
@@ -235,7 +247,7 @@ final class CanvasViewController: UIViewController {
                 line.centerXAnchor.constraint(equalTo: canvasView.centerXAnchor),
                 line.topAnchor.constraint(equalTo: canvasView.topAnchor),
                 line.bottomAnchor.constraint(equalTo: canvasView.bottomAnchor),
-                line.widthAnchor.constraint(equalToConstant: 1.0)
+                line.widthAnchor.constraint(equalToConstant: 2.0)
             ])
             verticalCenterLine = line
         }
@@ -250,12 +262,131 @@ final class CanvasViewController: UIViewController {
         hideHorizontalCenterLine()
         hideVerticalCenterLine()
     }
+    
+    // Snap to guide lines function
+    func snapToGuideLines(_ draggedView: UIImageView) {
+        let draggedFrame = draggedView.frame
+        
+        for imageView in imageViews where imageView != draggedView {
+            let otherFrame = imageView.frame
+            
+            // Snapping to horizontal guide lines
+            if abs(draggedFrame.minY - otherFrame.minY) < snapThreshold {
+                draggedView.frame.origin.y = otherFrame.minY
+            } else if abs(draggedFrame.maxY - otherFrame.maxY) < snapThreshold {
+                draggedView.frame.origin.y = otherFrame.maxY - draggedFrame.height
+            } else if abs(draggedFrame.midY - otherFrame.midY) < snapThreshold {
+                draggedView.center.y = otherFrame.midY
+            } else if abs(draggedFrame.minY - otherFrame.maxY) < snapThreshold {
+                draggedView.frame.origin.y = otherFrame.maxY
+            } else if abs(draggedFrame.maxY - otherFrame.minY) < snapThreshold {
+                draggedView.frame.origin.y = otherFrame.minY - draggedFrame.height
+            }
+            
+            // Snapping to vertical guide lines
+            if abs(draggedFrame.minX - otherFrame.minX) < snapThreshold {
+                draggedView.frame.origin.x = otherFrame.minX
+            } else if abs(draggedFrame.maxX - otherFrame.maxX) < snapThreshold {
+                draggedView.frame.origin.x = otherFrame.maxX - draggedFrame.width
+            } else if abs(draggedFrame.midX - otherFrame.midX) < snapThreshold {
+                draggedView.center.x = otherFrame.midX
+            } else if abs(draggedFrame.minX - otherFrame.maxX) < snapThreshold {
+                draggedView.frame.origin.x = otherFrame.maxX
+            } else if abs(draggedFrame.maxX - otherFrame.minX) < snapThreshold {
+                draggedView.frame.origin.x = otherFrame.minX - draggedFrame.width
+            }
+            
+        }
+    }
+    
+    // Horizontal guide line drawing function
+    func drawHorizontalGuideLine(at yPosition: CGFloat) {
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: 0, y: yPosition))
+        path.addLine(to: CGPoint(x: canvasView.bounds.width, y: yPosition))
+        
+        let guideLine = CAShapeLayer()
+        guideLine.path = path.cgPath
+        guideLine.strokeColor = UIColor.orange.cgColor
+        guideLine.lineWidth = 1.0
+        guideLine.lineDashPattern = [4, 2]
+        self.canvasView.layer.addSublayer(guideLine)
+        guideLines.append(guideLine)
+    }
+    
+    // Function of drawing vertical guide line
+    func drawVerticalGuideLine(at xPosition: CGFloat) {
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: xPosition, y: 0))
+        path.addLine(to: CGPoint(x: xPosition, y: canvasView.bounds.height))
+        
+        let guideLine = CAShapeLayer()
+        guideLine.path = path.cgPath
+        guideLine.strokeColor = UIColor.orange.cgColor
+        guideLine.lineWidth = 1.0
+        guideLine.lineDashPattern = [4, 2]
+        self.canvasView.layer.addSublayer(guideLine)
+        guideLines.append(guideLine)
+    }
+    
+    // Guide lines update function
+    func updateGuideLines(for draggedView: UIImageView) {
+        removeGuideLines()
+        
+        for imageView in imageViews where imageView != draggedView {
+            let draggedFrame = draggedView.frame
+            let otherFrame = imageView.frame
+            
+            // Horizontal guide lines
+            if draggedFrame.minY == otherFrame.minY {
+                drawHorizontalGuideLine(at: draggedFrame.minY)
+            }
+            if draggedFrame.maxY == otherFrame.maxY {
+                drawHorizontalGuideLine(at: draggedFrame.maxY)
+            }
+            if draggedFrame.midY == otherFrame.midY {
+                drawHorizontalGuideLine(at: draggedFrame.midY)
+            }
+            if draggedFrame.minY == otherFrame.maxY {
+                drawHorizontalGuideLine(at: draggedFrame.minY)
+            }
+            if draggedFrame.maxY == otherFrame.minY {
+                drawHorizontalGuideLine(at: draggedFrame.maxY)
+            }
+            
+            // Vertical guide lines
+            if draggedFrame.minX == otherFrame.minX {
+                drawVerticalGuideLine(at: draggedFrame.minX)
+            }
+            if draggedFrame.maxX == otherFrame.maxX {
+                drawVerticalGuideLine(at: draggedFrame.maxX)
+            }
+            if draggedFrame.midX == otherFrame.midX {
+                drawVerticalGuideLine(at: draggedFrame.midX)
+            }
+            if draggedFrame.minX == otherFrame.maxX {
+                drawVerticalGuideLine(at: draggedFrame.minX)
+            }
+            if draggedFrame.maxX == otherFrame.minX {
+                drawVerticalGuideLine(at: draggedFrame.maxX)
+            }
+        }
+    }
+    
+    // Remove guide lines function
+    func removeGuideLines() {
+        for line in guideLines {
+            line.removeFromSuperlayer()
+        }
+        guideLines.removeAll()
+    }
 }
 
 extension CanvasViewController: ImagePickerDelegate {
     func didSelectImage(_ image: UIImage) {
         let imageView = UIImageView(image: image)
         imageView.isUserInteractionEnabled = true
+        imageViews.append(imageView)
         canvasView.addSubview(imageView)
         
         makeImageViewMovable(imageView)
