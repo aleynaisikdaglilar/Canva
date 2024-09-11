@@ -12,6 +12,7 @@ final class CanvasViewController: UIViewController {
     private var selectedImageView: UIImageView?
     private var imageViewFrames: [UIImageView: CGRect] = [:]
     private var overlayView: UIView?
+    private var lines: [UIView] = []
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -69,8 +70,8 @@ final class CanvasViewController: UIViewController {
             canvasView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             canvasView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             
-            canvasView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 1.2), // Scaled width
-            canvasView.heightAnchor.constraint(equalTo: scrollView.heightAnchor, multiplier: 1.2), // Scaled height
+            canvasView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 1.2),
+            canvasView.heightAnchor.constraint(equalTo: scrollView.heightAnchor, multiplier: 1.2),
             
             addButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             addButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -80,7 +81,7 @@ final class CanvasViewController: UIViewController {
         
         let lineWidth: CGFloat = 1.0
         let numberOfLines = 2
-        let scaledCanvasWidth = view.frame.width * 1.2 // Calculate scaled width
+        let scaledCanvasWidth = view.frame.width * 1.2
         
         for i in 1...numberOfLines {
             let line = UIView()
@@ -93,6 +94,7 @@ final class CanvasViewController: UIViewController {
                 line.leadingAnchor.constraint(equalTo: canvasView.leadingAnchor, constant: scaledCanvasWidth / 3 * CGFloat(i)),
                 line.widthAnchor.constraint(equalToConstant: lineWidth)
             ])
+            lines.append(line)
         }
     }
     
@@ -133,6 +135,7 @@ final class CanvasViewController: UIViewController {
             if selectedImageView == imageView {
                 updateOverlayFrame(for: imageView)
             }
+            checkIntersection(for: imageView)
         }
     }
     
@@ -148,10 +151,7 @@ final class CanvasViewController: UIViewController {
     private func addOverlay(to imageView: UIImageView) {
         removeOverlay()
         
-        let padding: CGFloat = 5.0
-        
-        
-        overlayView = UIView(frame: imageView.frame.insetBy(dx: -padding, dy: -padding))
+        overlayView = UIView(frame: imageView.frame)
         overlayView?.backgroundColor = UIColor.cyan.withAlphaComponent(0.3)
         overlayView?.isUserInteractionEnabled = false
         
@@ -161,10 +161,22 @@ final class CanvasViewController: UIViewController {
     }
     
     private func updateOverlayFrame(for imageView: UIImageView) {
+        overlayView?.frame = imageView.frame
+    }
+    
+    private func checkIntersection(for imageView: UIImageView) {
+        guard let overlayFrame = overlayView?.superview?.convert(overlayView!.frame, to: canvasView) else { return }
         
-        let padding: CGFloat = 5.0
+        var isIntersecting = false
         
-        overlayView?.frame = imageView.frame.insetBy(dx: -padding, dy: -padding)
+        for line in lines {
+            if overlayFrame.intersects(line.frame) {
+                line.backgroundColor = .yellow
+                isIntersecting = true
+            } else if !isIntersecting {
+                line.backgroundColor = .gray
+            }
+        }
     }
 }
 

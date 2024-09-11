@@ -41,9 +41,17 @@ final class ImagePickerViewController: UIViewController {
     }
     
     private func loadImages() {
-        viewModel.loadPhotos {
+        // Yükleme göstergesi ekleyin
+        let activityIndicator = UIActivityIndicatorView(style: .large)
+        activityIndicator.center = view.center
+        activityIndicator.startAnimating()
+        view.addSubview(activityIndicator)
+        
+        viewModel.loadPhotos { [weak self] in
             DispatchQueue.main.async {
-                self.collectionView.reloadData()
+                activityIndicator.stopAnimating()
+                activityIndicator.removeFromSuperview()
+                self?.collectionView.reloadData()
             }
         }
     }
@@ -81,9 +89,19 @@ extension ImagePickerViewController: UICollectionViewDelegate, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let photo = viewModel.photos[indexPath.item]
-        if let url = URL(string: photo.src.original), let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
-            delegate?.didSelectImage(image)
-            dismiss(animated: true, completion: nil)
+        if let url = URL(string: photo.src.original) {
+            let task = URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+                if let error = error {
+                    print("Error loading image: \(error)")
+                    return
+                }
+                guard let data = data, let image = UIImage(data: data) else { return }
+                DispatchQueue.main.async {
+                    self?.delegate?.didSelectImage(image)
+                    self?.dismiss(animated: true, completion: nil)
+                }
+            }
+            task.resume()
         }
     }
 }
